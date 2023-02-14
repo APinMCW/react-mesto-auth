@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -9,6 +10,8 @@ import api from "../utils/Api";
 import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
+import Login from "./Login";
+import ProtectedRouteElement from "./ProtectedRoute";
 
 function App() {
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
@@ -17,6 +20,7 @@ function App() {
   const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
+  const [loggedIn, SetloggedIn] = useState(false);
 
   useEffect(() => {
     Promise.all([api.getUserInfo(), api.getCards()])
@@ -85,36 +89,65 @@ function App() {
   }
 
   return (
-    <CurrentUserContext.Provider value={currentUser}>
-      <Header />
-      <Main
-        onEditProfile={() => setEditProfilePopupOpen(true)}
-        onAddPlace={() => setAddPlacePopupOpen(true)}
-        onEditAvatar={() => setEditAvatarPopupOpen(true)}
-        onCardClick={handleCardClick}
-        onCardLike={handleCardLike}
-        onCardDelete={handleDeleteClick}
-        cards={cards}
-      />
-      <Footer />
-      <EditProfilePopup
-        isOpen={isEditProfilePopupOpen}
-        onClose={closeAllPopups}
-        onUpdateUser={handleUpdateUser}
-      />
-      <AddPlacePopup
-        isOpen={isAddPlacePopupOpen}
-        onClose={closeAllPopups}
-        onAddPlace={handleAddPlaceSubmit}
-      />
-      <ImagePopup card={selectedCard} onClose={closeAllPopups} />
-      <PopupWithForm title="Вы уверены?" name="confirmation" textButton="Да" />
-      <EditAvatarPopup
-        isOpen={isEditAvatarPopupOpen}
-        onClose={closeAllPopups}
-        onUpdateAvatar={handleUpdateAvatar}
-      />
-    </CurrentUserContext.Provider>
+    <BrowserRouter>
+      <CurrentUserContext.Provider value={currentUser}>
+        <Header />
+        <Routes>
+          <Route
+            path="*"
+            element={
+              loggedIn ? (
+                <Navigate to="/main" replace />
+              ) : (
+                <Navigate to="/sign-in" replace />
+              )
+            }
+          />
+          <Route path="/sign-in" element={<Login />} />
+          <Route
+            path="/main"
+            element={
+              <ProtectedRouteElement
+                element={
+                  <Main
+                    onEditProfile={() => setEditProfilePopupOpen(true)}
+                    onAddPlace={() => setAddPlacePopupOpen(true)}
+                    onEditAvatar={() => setEditAvatarPopupOpen(true)}
+                    onCardClick={handleCardClick}
+                    onCardLike={handleCardLike}
+                    onCardDelete={handleDeleteClick}
+                    cards={cards}
+                  />
+                }
+                loggedIn={loggedIn}
+              />
+            }
+          />
+        <Footer />
+        </Routes>
+        <EditProfilePopup
+          isOpen={isEditProfilePopupOpen}
+          onClose={closeAllPopups}
+          onUpdateUser={handleUpdateUser}
+        />
+        <AddPlacePopup
+          isOpen={isAddPlacePopupOpen}
+          onClose={closeAllPopups}
+          onAddPlace={handleAddPlaceSubmit}
+        />
+        <ImagePopup card={selectedCard} onClose={closeAllPopups} />
+        <PopupWithForm
+          title="Вы уверены?"
+          name="confirmation"
+          textButton="Да"
+        />
+        <EditAvatarPopup
+          isOpen={isEditAvatarPopupOpen}
+          onClose={closeAllPopups}
+          onUpdateAvatar={handleUpdateAvatar}
+        />
+      </CurrentUserContext.Provider>
+    </BrowserRouter>
   );
 }
 
