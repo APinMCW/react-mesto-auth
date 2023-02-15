@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation
+} from "react-router-dom";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -12,6 +18,7 @@ import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import Login from "./Login";
 import ProtectedRouteElement from "./ProtectedRoute";
+import Register from "./Register";
 
 function App() {
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
@@ -104,6 +111,7 @@ function App() {
             }
           />
           <Route path="/sign-in" element={<Login />} />
+          <Route path="/sign-up" element={<Register />} />
           <Route
             path="/main"
             element={
@@ -123,8 +131,8 @@ function App() {
               />
             }
           />
-        <Footer />
         </Routes>
+        <Footer />
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
           onClose={closeAllPopups}
