@@ -59,6 +59,7 @@
 @import url(./blocks/popup/__set/popup__set.css);
 @import url(./blocks/popup/_type/popup_type_notice.css);
 @import url(./blocks/popup/__container/_type/popup__container_type_notice.css);
+@import url(./blocks/popup/__title/_type/popup__title_type_notice.css);
 /* Login */
 @import url(./blocks/login/login.css);
 @import url(./blocks/login/__title/login__title.css);

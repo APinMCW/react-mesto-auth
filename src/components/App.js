@@ -1,11 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-  useLocation
-} from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -19,12 +13,19 @@ import AddPlacePopup from "./AddPlacePopup";
 import Login from "./Login";
 import ProtectedRouteElement from "./ProtectedRoute";
 import Register from "./Register";
+import InfoTooltip from "./InfoTooltip";
+import regSucces from "../images/authSuccses.svg";
+import regFail from "../images/authFail.svg";
 
 function App() {
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = useState(false);
   const [isNoticePopupOpen, setNoticePopupOpen] = useState(false);
+  const [dataInfoTooltop, setDataInfoTooltop] = useState({
+    title: "",
+    icon: {},
+  });
   const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
@@ -97,6 +98,18 @@ function App() {
     });
   }
 
+  // apiCall.register.then((res) => {
+  //   res.ok
+  //     ? setDataInfoTooltop({
+  //         title: "Вы успешно зарегистрировались!",
+  //         icon: { regSucces },
+  //       })
+  //     : setDataInfoTooltop({
+  //         title: "Что-то пошло не так! Попробуйте ещё раз.",
+  //         icon: { regFail },
+  //       });
+  // });
+
   return (
     <BrowserRouter>
       <CurrentUserContext.Provider value={currentUser}>
@@ -155,6 +168,11 @@ function App() {
           isOpen={isEditAvatarPopupOpen}
           onClose={closeAllPopups}
           onUpdateAvatar={handleUpdateAvatar}
+        />
+        <InfoTooltip
+          isOpen={isNoticePopupOpen}
+          onClose={closeAllPopups}
+          data={dataInfoTooltop}
         />
       </CurrentUserContext.Provider>
     </BrowserRouter>
