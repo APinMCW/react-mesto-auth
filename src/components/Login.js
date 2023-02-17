@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function Login() {
+function Login({handleLogin}) {
     const [userData, setUserData] = useState({
         email: "",
         password: ""
@@ -17,7 +17,17 @@ function Login() {
 
       function handleSubmit(e){
         e.preventDefault();
-        setUserData({email: userData.email, password:userData.password})
+        if (!userData.email || !userData.password) {
+          return;
+        }
+    
+        handleLogin(userData)
+          .then(() => {
+            setUserData({ email: "", password: "" });
+          })
+          .catch((error) => {
+            console.log(`Что-то пошло не так! ${error} `);
+          });
       }
 
   return (

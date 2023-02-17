@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -11,11 +11,11 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import Login from "./Login";
-import ProtectedRouteElement from "./ProtectedRoute";
+
 import Register from "./Register";
 import InfoTooltip from "./InfoTooltip";
-import regSucces from "../images/authSuccses.svg";
-import regFail from "../images/authFail.svg";
+import * as ApiAuth from "../utils/ApiAuth.js";
+import ProtectedRouteElement from "./ProtectedRoute";
 
 function App() {
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
@@ -24,12 +24,19 @@ function App() {
   const [isNoticePopupOpen, setNoticePopupOpen] = useState(false);
   const [dataInfoTooltop, setDataInfoTooltop] = useState({
     title: "",
-    icon: {},
+    icon: "",
   });
   const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
+  const [dataUser, setDataUser] = useState({ password: "", email: "" });
   const [cards, setCards] = useState([]);
-  const [loggedIn, SetloggedIn] = useState(false);
+  const [loggedIn, setloggedIn] = useState(false);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    tokenCheck();
+  }, []);
 
   useEffect(() => {
     Promise.all([api.getUserInfo(), api.getCards()])
@@ -98,84 +105,117 @@ function App() {
     });
   }
 
-  // apiCall.register.then((res) => {
-  //   res.ok
-  //     ? setDataInfoTooltop({
-  //         title: "Вы успешно зарегистрировались!",
-  //         icon: { regSucces },
-  //       })
-  //     : setDataInfoTooltop({
-  //         title: "Что-то пошло не так! Попробуйте ещё раз.",
-  //         icon: { regFail },
-  //       });
-  // });
+  function handleLogin({ email, password }) {
+    return ApiAuth.authorize(email, password).then((data) => {
+      if (data.token) {
+        localStorage.setItem("jwt", data.token);
+        setloggedIn(true);
+        setDataUser({
+          password: password,
+          email: email,
+        });
+        navigate("/");
+      }
+    });
+  }
+
+  function handleRegister({ email, password }) {
+    return ApiAuth.register(email, password)
+      .then((res) => {
+        res.ok
+          ? setDataInfoTooltop({
+              title: "Что-то пошло не так! Попробуйте ещё раз.",
+              icon: "fail",
+            })
+          : setDataInfoTooltop({
+              title: "Вы успешно зарегистрировались!",
+              icon: "succses",
+            });
+        setNoticePopupOpen(true);
+      })
+      .catch(() => {
+        setDataInfoTooltop({
+          title: "Что-то пошло не так! Попробуйте ещё раз.",
+          icon: "fail",
+        });
+        setNoticePopupOpen(true);
+      });
+  }
+
+  function tokenCheck() {
+    const jwt = localStorage.getItem("jwt");
+    if (jwt) {
+      ApiAuth.checkToken(jwt).then((res) => {
+        setloggedIn(true);
+        setDataUser({
+          password: res.password,
+          email: res.email,
+        });
+        navigate("/");
+      });
+    }
+  }
 
   return (
-    <BrowserRouter>
-      <CurrentUserContext.Provider value={currentUser}>
-        <Header />
-        <Routes>
-          <Route
-            path="*"
-            element={
-              loggedIn ? (
-                <Navigate to="/main" replace />
-              ) : (
-                <Navigate to="/sign-in" replace />
-              )
-            }
-          />
-          <Route path="/sign-in" element={<Login />} />
-          <Route path="/sign-up" element={<Register />} />
-          <Route
-            path="/main"
-            element={
-              <ProtectedRouteElement
-                element={
-                  <Main
-                    onEditProfile={() => setEditProfilePopupOpen(true)}
-                    onAddPlace={() => setAddPlacePopupOpen(true)}
-                    onEditAvatar={() => setEditAvatarPopupOpen(true)}
-                    onCardClick={handleCardClick}
-                    onCardLike={handleCardLike}
-                    onCardDelete={handleDeleteClick}
-                    cards={cards}
-                  />
-                }
-                loggedIn={loggedIn}
-              />
-            }
-          />
-        </Routes>
-        <Footer />
-        <EditProfilePopup
-          isOpen={isEditProfilePopupOpen}
-          onClose={closeAllPopups}
-          onUpdateUser={handleUpdateUser}
+    <CurrentUserContext.Provider value={currentUser}>
+      <Header dataUser={dataUser} />
+      <Routes>
+        <Route
+          path="*"
+          element={
+            loggedIn ? (
+              <Navigate to="/" replace />
+            ) : (
+              <Navigate to="/sign-in" replace />
+            )
+          }
         />
-        <AddPlacePopup
-          isOpen={isAddPlacePopupOpen}
-          onClose={closeAllPopups}
-          onAddPlace={handleAddPlaceSubmit}
+        <Route path="/sign-in" element={<Login handleLogin={handleLogin} />} />
+        <Route
+          path="/sign-up"
+          element={<Register handleRegister={handleRegister} />}
         />
-        <ImagePopup card={selectedCard} onClose={closeAllPopups} />
-        <PopupWithForm
-          title="Вы уверены?"
-          name="confirmation"
-          textButton="Да"
+        <Route
+          path="/"
+          element={
+            <ProtectedRouteElement
+              element={Main}
+              onEditProfile={() => setEditProfilePopupOpen(true)}
+              onAddPlace={() => setAddPlacePopupOpen(true)}
+              onEditAvatar={() => setEditAvatarPopupOpen(true)}
+              onCardClick={handleCardClick}
+              onCardLike={handleCardLike}
+              onCardDelete={handleDeleteClick}
+              cards={cards}
+              loggedIn={loggedIn}
+            />
+          }
         />
-        <EditAvatarPopup
-          isOpen={isEditAvatarPopupOpen}
-          onClose={closeAllPopups}
-          onUpdateAvatar={handleUpdateAvatar}
-        />
-        <InfoTooltip
-          isOpen={isNoticePopupOpen}
-          onClose={closeAllPopups}
-          data={dataInfoTooltop}
-        />
-      </CurrentUserContext.Provider>
-    </BrowserRouter>
+      </Routes>
+      <Footer />
+      <EditProfilePopup
+        isOpen={isEditProfilePopupOpen}
+        onClose={closeAllPopups}
+        onUpdateUser={handleUpdateUser}
+      />
+      <AddPlacePopup
+        isOpen={isAddPlacePopupOpen}
+        onClose={closeAllPopups}
+        onAddPlace={handleAddPlaceSubmit}
+      />
+      <ImagePopup card={selectedCard} onClose={closeAllPopups} />
+      <PopupWithForm title="Вы уверены?" name="confirmation" textButton="Да" />
+      <EditAvatarPopup
+        isOpen={isEditAvatarPopupOpen}
+        onClose={closeAllPopups}
+        onUpdateAvatar={handleUpdateAvatar}
+      />
+      <InfoTooltip
+        isOpen={isNoticePopupOpen}
+        onClose={closeAllPopups}
+        data={dataInfoTooltop}
+      />
+    </CurrentUserContext.Provider>
   );
 }
 

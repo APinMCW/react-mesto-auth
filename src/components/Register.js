@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-function Register() {
+function Register({ handleRegister }) {
   const [userData, setUserData] = useState({
     email: "",
     password: "",
@@ -18,12 +18,17 @@ function Register() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    setUserData({ email: userData.email, password: userData.password });
+
+    handleRegister(userData)
+      .then()
+      .catch((error) => {
+        console.log(`Что-то пошло не так! ${error} `);
+      });
   }
 
   return (
     <div className="Register">
-      <h1 className="Register__title">Вход</h1>
+      <h1 className="Register__title">Регистрация</h1>
       <form name="Register" className="Register__form" onSubmit={handleSubmit}>
         <input
           type="email"

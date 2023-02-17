@@ -33,4 +33,3 @@ export const checkToken = (JWT) => {
   }).then(checkResponse);
 };
 
-export default ApiAuth;

@@ -1,11 +1,11 @@
 import logo from "../images/logo.svg";
 import NavBar from "./NavBar";
 
-function Header() {
+function Header({ dataUser}) {
   return (
     <header className="header">
       <img className="header__logo" src={logo} alt="Лого Место" />
-      <NavBar/>
+      <NavBar dataUser={dataUser}/>
     </header>
   );
 }
