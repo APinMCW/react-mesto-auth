@@ -1,16 +1,21 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useFormAndValidation } from "../hooks/useFormAndValidation";
+import Input from "./Input";
 import PopupWithForm from "./PopupWithForm";
 
-function AddPlacePopup({isOpen, onClose, onAddPlace}) {
-  const [name, setName] = useState("");
-  const [link, setLink] = useState("");
+function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
+  const { values, handleChange, errors, isValid, setValues, resetForm } =
+    useFormAndValidation();
 
   function handleSubmit(e) {
     e.preventDefault();
-    onAddPlace({ name: name, link: link });
-    setName('');
-    setLink('');
+    onAddPlace(values);
   }
+
+  useEffect(() => {
+    resetForm();
+    setValues({ name: "", link: "" });
+  }, [isOpen]);
 
   return (
     <PopupWithForm
@@ -21,30 +26,30 @@ function AddPlacePopup({isOpen, onClose, onAddPlace}) {
       onClose={onClose}
       onSubmit={handleSubmit}
     >
-      <input
+      <Input
         type="text"
         name="name"
-        className="popup__input popup__input_data_name"
         placeholder="Название"
+        value={values.name}
+        onChange={handleChange}
         required
-        minLength="2"
-        maxLength="30"
+        blockClassName="popup"
         id="cardName-input"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        error={errors}
+        isValid={isValid}
       />
-      <span className="popup__error cardName-input-error"></span>
-      <input
+      <Input
         type="url"
         name="link"
-        className="popup__input popup__input_data_link"
         placeholder="Ссылка на картинку"
+        value={values.link}
+        onChange={handleChange}
         required
+        blockClassName="popup"
         id="link-input"
-        value={link}
-        onChange={(e) => setLink(e.target.value)}
+        error={errors}
+        isValid={isValid}
       />
-      <span className="popup__error link-input-error"></span>
     </PopupWithForm>
   );
 }

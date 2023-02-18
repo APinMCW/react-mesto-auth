@@ -59,9 +59,14 @@ function App() {
   function handleCardLike(card) {
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
 
-    api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
-      setCards((state) => state.map((c) => (c._id === card._id ? newCard : c)));
-    });
+    api
+      .changeLikeCardStatus(card._id, !isLiked)
+      .then((newCard) => {
+        setCards((state) =>
+          state.map((c) => (c._id === card._id ? newCard : c))
+        );
+      })
+      .catch((err) => console.log(`Ошибка при удалении карточки: ${err}`));
   }
 
   function handleCardClick(card) {
@@ -99,24 +104,35 @@ function App() {
   }
 
   function handleAddPlaceSubmit(card) {
-    api.setCard(card).then((data) => {
-      setCards([data, ...cards]);
-      closeAllPopups();
-    });
+    api
+      .setCard(card)
+      .then((data) => {
+        setCards([data, ...cards]);
+        closeAllPopups();
+      })
+      .catch((err) => console.log(`Ошибка при добавлении карточки: ${err}`));
   }
 
   function handleLogin({ email, password }) {
-    return ApiAuth.authorize(email, password).then((data) => {
-      if (data.token) {
-        localStorage.setItem("jwt", data.token);
-        setloggedIn(true);
-        setDataUser({
-          password: password,
-          email: email,
+    return ApiAuth.authorize(email, password)
+      .then((data) => {
+        if (data.token) {
+          localStorage.setItem("jwt", data.token);
+          setloggedIn(true);
+          setDataUser({
+            password: password,
+            email: email,
+          });
+          navigate("/");
+        }
+      })
+      .catch(() => {
+        setDataInfoTooltop({
+          title: "Что-то пошло не так! Попробуйте ещё раз.",
+          icon: "fail",
         });
-        navigate("/");
-      }
-    });
+        setNoticePopupOpen(true);
+      });
   }
 
   function handleRegister({ email, password }) {
@@ -132,6 +148,7 @@ function App() {
               icon: "succses",
             });
         setNoticePopupOpen(true);
+        navigate("/sign-in")
       })
       .catch(() => {
         setDataInfoTooltop({
@@ -145,14 +162,16 @@ function App() {
   function tokenCheck() {
     const jwt = localStorage.getItem("jwt");
     if (jwt) {
-      ApiAuth.checkToken(jwt).then((res) => {
-        setloggedIn(true);
-        setDataUser({
-          password: res.password,
-          email: res.email,
-        });
-        navigate("/");
-      });
+      ApiAuth.checkToken(jwt)
+        .then((res) => {
+          setloggedIn(true);
+          setDataUser({
+            password: res.password,
+            email: res.email,
+          });
+          navigate("/");
+        })
+        .catch((err) => console.log(`Ошибка при проверке токена: ${err}`));
     }
   }
 

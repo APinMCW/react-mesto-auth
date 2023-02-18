@@ -1,67 +1,57 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useFormAndValidation } from "../hooks/useFormAndValidation";
+import Form from "./Form";
+import Input from "./Input";
 
-function Login({handleLogin}) {
-    const [userData, setUserData] = useState({
-        email: "",
-        password: ""
-    })
+function Login({ handleLogin }) {
+  const { values, handleChange, errors, isValid, setValues } =
+    useFormAndValidation();
 
-    function handleChange(e) {
-        const { name, value } = e.target;
-    
-        setUserData({
-          ...userData,
-          [name]: value,
-        });
-      }
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!values.email || !values.password) {
+      return;
+    }
 
-      function handleSubmit(e){
-        e.preventDefault();
-        if (!userData.email || !userData.password) {
-          return;
-        }
-    
-        handleLogin(userData)
-          .then(() => {
-            setUserData({ email: "", password: "" });
-          })
-          .catch((error) => {
-            console.log(`Что-то пошло не так! ${error} `);
-          });
-      }
+    handleLogin(values);
+  }
+
+  useEffect(() => {
+    setValues({ email: "", password: "" });
+  }, []);
 
   return (
-    <div className="login">
-      <h1 className="login__title">Вход</h1>
-      <form name='login' className="login__form" onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          className="login__input login__input_data_email"
-          placeholder="Email"
-          required
-          id="email-input"
-          onChange={handleChange}
-          value={userData.email || ""}
-        />
-        <span className="login__error email-input-error"></span>
-        <input
-          type="password"
-          name="password"
-          className="login__input login__input_data_password"
-          placeholder="Пароль"
-          required
-          minLength="2"
-          id="password-input"
-          onChange={handleChange}
-          value={userData.password || ""}
-        />
-        <span className="login__error password-input-error"></span>
-        <button className="login__button" type="submit" aria-label="Войти">
-          Войти
-        </button>
-      </form>
-    </div>
+    <Form
+      name="login"
+      title="Вход"
+      className="login__form"
+      handleSubmit={handleSubmit}
+      textButton="Войти"
+      classNameButton="login__button"
+    >
+      <Input
+        type="email"
+        name="email"
+        placeholder="Email"
+        value={values.email}
+        onChange={handleChange}
+        required
+        blockClassName="login"
+        error={errors}
+        isValid={isValid}
+      />
+      <Input
+        type="password"
+        name="password"
+        placeholder="Пароль"
+        value={values.password}
+        onChange={handleChange}
+        required
+        blockClassName="login"
+        error={errors}
+        isValid={isValid}
+      />
+    </Form>
   );
 }
 

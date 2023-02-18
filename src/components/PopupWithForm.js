@@ -1,3 +1,6 @@
+import Form from "./Form";
+import Popup from "./Popup";
+
 function PopupWithForm({
   title,
   name,
@@ -8,32 +11,17 @@ function PopupWithForm({
   onSubmit,
 }) {
   return (
-    <div className={`popup popup_type_${name} ${isOpen && "popup_opened"}`}>
-      <div className={`popup__container popup__container_type_${name}`}>
-        <h2 className="popup__title">{title}</h2>
-        <button
-          className="popup__close"
-          type="button"
-          aria-label="закрыть окно"
-          onClick={onClose}
-        ></button>
-        <form
-          name={name}
-          className="popup__form"
-          noValidate
-          onSubmit={onSubmit}
-        >
-          {children}
-          <button
-            className="popup__button"
-            type="submit"
-            aria-label={textButton}
-          >
-            {textButton}
-          </button>
-        </form>
-      </div>
-    </div>
+    <Popup isOpen={isOpen} name={name} onClose={onClose}>
+      <Form
+        name={name}
+        title={title}
+        handleSubmit={onSubmit}
+        textButton={textButton}
+        classNameButton="popup__button"
+      >
+        {children}
+      </Form>
+    </Popup>
   );
 }
 

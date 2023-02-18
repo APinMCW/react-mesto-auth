@@ -1,4 +1,4 @@
-.Register__title {
+.popup__title_type_Register {
     font-style: normal;
     font-size: 24px;
     font-weight: 900;
@@ -10,7 +10,7 @@
 }
 
 @media (max-width: 500px) {
-    .Register__title {
+    .popup__title_type_Register {
         font-size: 20px;
     }
 }

@@ -1,4 +1,4 @@
-.login__title {
+.popup__title_type_login {
     font-style: normal;
     font-size: 24px;
     font-weight: 900;
@@ -10,7 +10,7 @@
 }
 
 @media (max-width: 500px) {
-    .login__title {
+    .popup__title_type_login {
         font-size: 20px;
     }
 }

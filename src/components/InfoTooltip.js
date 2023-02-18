@@ -1,17 +1,14 @@
+import Popup from "./Popup";
+
 function InfoTooltip({ isOpen, onClose, data }) {
   return (
-    <div className={`popup popup_type_notice ${isOpen && "popup_opened"}`}>
-      <div className={`popup__container popup__container_type_notice`}>
-        <img className={`popup__logo popup__logo_type_${data.icon}`}></img>
-        <h2 className="popup__title popup__title_type_notice">{data.title}</h2>
-        <button
-          className="popup__close"
-          type="button"
-          aria-label="закрыть окно"
-          onClick={onClose}
-        ></button>
-      </div>
-    </div>
+    <Popup isOpen={isOpen} name="notice" onClose={onClose}>
+      <img
+        className={`popup__logo popup__logo_type_${data.icon}`}
+        alt={data.title}
+      ></img>
+      <h2 className="popup__title popup__title_type_notice">{data.title}</h2>
+    </Popup>
   );
 }
 

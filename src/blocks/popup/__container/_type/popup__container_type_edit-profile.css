@@ -1,4 +1,4 @@
-.popup__container_type_profile {
+.popup__container_type_edit-profile {
     position: relative;
     max-width: 430px;
     height: max-content;
@@ -8,7 +8,7 @@
 }
 
 @media (max-width: 550px) {
-    .popup__container_type_profile {
+    .popup__container_type_edit-profile {
         max-width: 282px;
     }
 }
